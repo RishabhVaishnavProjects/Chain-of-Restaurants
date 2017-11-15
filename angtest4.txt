@@ -1,0 +1,75 @@
+<div ng-app="myapp" ng-controller="empcontroller">
+        <form>
+            Employe No. <input type="text" ng-model="emp_no" /><br/>
+            First Name. <input type="text" ng-model="first_name" /><br/>
+            Last Name.  <input type="text" ng-model="last_name" /><br/>
+            Department. <input type="text" ng-model="dept_name" /><br/>
+
+             <button ng-click="postData()">Submit</button><br>
+        </form> 
+    </div>
+	
+	
+	
+	
+	app.controller('empcontroller', function ($scope, $http) {
+/*
+* This method will be called on click event of button.
+*/
+$scope.postData = function () {
+
+    var request = $http({
+        method: "post",
+        url: window.location.href + "insert.php",
+        data: {
+            emp_no: $scope.emp_no,
+            first_name: $scope.first_name,
+            last_name: $scope.last_name,
+            dept_name: $scope.dept_name,
+        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+ }
+}); 
+
+
+
+
+
+
+
+<?php
+
+ $postdata = file_get_contents("php://input");
+    $request = json_decode($postdata);
+    $emp_no = $request->emp_no;
+    $first_name = $request->first_name;
+    $last_name = $request->last_name;
+    $dept_name = $request->dept_name;
+
+
+$servername = "localhost";
+$username = "root";
+$password = "root"; //Your User Password
+$dbname = "myDB"; //Your Database Name
+
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+} 
+
+$sql = "INSERT INTO employee (emp_no, first_name, last_name, dept_name)
+VALUES ($emp_no, $first_name, $last_name , $dept_name)";
+
+if ($conn->query($sql) === TRUE) {
+    echo "New record created successfully";
+} else {
+    echo "Error: " . $sql . "<br>" . $conn->error;
+}
+
+$conn->close();
+?>

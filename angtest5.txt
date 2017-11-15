@@ -1,0 +1,88 @@
+//best inserting
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wikitechy AngularJS Tutorials</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/
+        angular.min.js"> </script>
+    </head>
+    <body ng-app="insertApp" ng-controller=" insertCtrl">
+        <h1>MYSQL Insert with PHP in AngularJS</h1>
+        <form name="userForm" ng-submit=" submitForm()">
+           <p>Enter Name :<input type="text" required ng-model="user.name"></p>
+           <p>Enter Mobile :<input type="text" required ng-model="user.mobile"></p>
+           <p>Enter Email :<input type="email" required ng-model="user.email"></p>
+           <button type="submit">Insert</button><br>
+        </form>
+        <table border="1">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                </tr>
+                <tr ng-repeat="x in content" >
+                    <td>{{x.id}}</td>
+                    <td>{{x.name}}</td>
+                    <td>{{x.mobile}}</td>
+                    <td>{{x. email}}</td>
+                </tr>
+            </table>
+            <h3>Please Use Ctrl+F5 for Refresh</h3>
+    </body>
+    <script>
+        var app = angular.module("insertApp", []);
+        app.controller("insertCtrl", function($scope, $http) {
+            $http.get("select.php").then(function(response) { 
+                $scope.content = response.data.details;       
+            });
+            $scope.user = {};
+            $scope.submitForm = function() {
+               $http({ method  : 'POST',
+               url :'insert.php',
+               data : $scope.user,
+               headers : {'Content-Type': 'application/x-www-form-urlencoded'} 
+               }) .success(function(data) {
+                   $scope.content = data;
+               });
+            };
+        });
+    </script>
+</html>
+
+
+
+
+
+//POST Data to PHP File in JSON format:
+//Set of data has been posted through AngularJS to PHP and retrieve the result from PHP file.
+
+$scope.submitForm = function() {
+        $http({ method  : 'POST',
+        url :'insert.php',
+        data : $scope.user,
+        headers : {'Content-Type': 'application/x-www-form-urlencoded'} 
+        }) .success(function(data) {
+            $scope.content = data;
+    });
+
+
+//insert.php
+
+<?php
+    error_reporting(0);
+    $conn = new PDO("mysql:host=myServer;dbname=myDb", "myUser", "myPassword");   
+    $_POST = json_decode(file_get_contents('php://input'), true);
+    if(!empty($_POST['name'])&& !empty($_POST['mobile']))
+    {
+       $ins_query=$conn->prepare("insert into tbl_name (name, mobile, email)
+        values( :name,:mobile , :email)");
+       $ins_query->bindParam(':name', $_POST['name']);
+       $ins_query->bindParam(':mobile', $_POST['mobile']);
+       $ins_query->bindParam(':email', $_POST['email']);
+       $chk_ins=$ins_query->execute();
+    }
+    $result = $conn->prepare("select * from tbl_name order by id ");
+    $sel_query->execute();
+    echo json_encode($sel_query->fetchAll());
+?> 
